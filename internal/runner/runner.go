@@ -211,7 +211,7 @@ When done:
 
 func (r *Runner) failCard(card trello.Card, start time.Time, errMsg string) {
 	duration := time.Since(start).Round(time.Second)
-	logPath := filepath.Join("~/.config/devkit/logs", card.ID+".log")
+	logPath := filepath.Join(os.Getenv("HOME"), ".config", "devkit", "logs", card.ID+".log")
 	comment := fmt.Sprintf("❌ Task failed\nDuration: %s\nError: %s\nSee full log: %s", duration, errMsg, logPath)
 	r.trello.MoveCard(card.ID, r.failedListID)
 	r.trello.AddComment(card.ID, comment)
