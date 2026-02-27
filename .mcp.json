@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "trello": {
+      "command": "node",
+      "args": ["/Users/siyu/Works/github.com/siyuqian/developer-kit/mcps/trello-mcp-server/dist/index.js"]
+    }
+  }
+}

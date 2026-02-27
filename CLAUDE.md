@@ -1,0 +1,58 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+## Project Overview
+
+This is a **Claude Code Developer Kit** — a collection of CLI tools, skills, and integrations for building Claude Code extensions. It is not a monorepo; each component is independent with its own dependencies.
+
+## Repository Structure
+
+- `cli/` — Go CLI tool (`devkit`) for managing service integrations
+- `.claude/skills/` — Built-in development skills
+  - `skill-creator/` — Guide + scripts for creating new skills
+  - `mcp-builder/` — Guide + scripts for building MCP servers
+- `docs/plans/` — Design and planning documents
+
+## Build & Development Commands
+
+### Devkit CLI (`cli/`)
+
+```bash
+cd cli
+go build -o devkit .    # Build binary
+go test ./...           # Run all tests
+./devkit --help         # Show help
+./devkit login trello   # Login to Trello
+./devkit status         # Check auth status
+```
+
+### Skill Helper Scripts (Python 3)
+
+```bash
+python3 .claude/skills/skill-creator/scripts/init_skill.py      # Scaffold a new skill
+python3 .claude/skills/skill-creator/scripts/package_skill.py    # Package a skill for distribution
+python3 .claude/skills/skill-creator/scripts/quick_validate.py   # Validate skill structure
+```
+
+## Architecture
+
+### Devkit CLI
+
+Go CLI tool using Cobra for subcommand routing:
+- `cmd/` — Cobra commands (login, logout, status)
+- `internal/config/` — Credential storage (~/.config/devkit/credentials.json)
+- `internal/services/` — Service interface + implementations (Trello)
+- Adding a new service: implement the Service interface in a new file, register in registry.go
+
+### Skills
+
+Skills are defined by a `SKILL.md` file (metadata + instructions) with optional `references/` and `scripts/` directories. They use progressive disclosure: metadata is loaded first, full content on invocation.
+
+## Key Conventions
+
+- CLI is written in Go with Cobra for command routing
+- Node.js >= 18 required for skill helper scripts
+- Go tests via `go test ./...`; no additional test framework
+- No CI/CD pipeline configured
+- No root-level package.json; skill scripts use Python 3
