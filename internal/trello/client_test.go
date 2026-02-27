@@ -113,3 +113,49 @@ func TestAddComment(t *testing.T) {
 		t.Fatalf("unexpected error: %v", err)
 	}
 }
+
+func TestFindBoardByName(t *testing.T) {
+	boards := []Board{{ID: "b1", Name: "Sprint Board"}, {ID: "b2", Name: "Backlog"}}
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		json.NewEncoder(w).Encode(boards)
+	}))
+	defer server.Close()
+
+	client := NewClient("k", "t", WithBaseURL(server.URL))
+
+	board, err := client.FindBoardByName("Sprint Board")
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if board.ID != "b1" {
+		t.Errorf("expected b1, got %s", board.ID)
+	}
+
+	_, err = client.FindBoardByName("Nonexistent")
+	if err == nil {
+		t.Error("expected error for missing board")
+	}
+}
+
+func TestFindListByName(t *testing.T) {
+	lists := []List{{ID: "l1", Name: "Ready"}, {ID: "l2", Name: "Done"}}
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		json.NewEncoder(w).Encode(lists)
+	}))
+	defer server.Close()
+
+	client := NewClient("k", "t", WithBaseURL(server.URL))
+
+	list, err := client.FindListByName("board1", "Ready")
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if list.ID != "l1" {
+		t.Errorf("expected l1, got %s", list.ID)
+	}
+
+	_, err = client.FindListByName("board1", "Nonexistent")
+	if err == nil {
+		t.Error("expected error for missing list")
+	}
+}

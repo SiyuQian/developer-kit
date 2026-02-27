@@ -163,3 +163,29 @@ func (c *Client) AddComment(cardID, text string) error {
 	_, err := c.post(fmt.Sprintf("/1/cards/%s/actions/comments", cardID), params)
 	return err
 }
+
+func (c *Client) FindBoardByName(name string) (*Board, error) {
+	boards, err := c.GetBoards()
+	if err != nil {
+		return nil, err
+	}
+	for _, b := range boards {
+		if b.Name == name {
+			return &b, nil
+		}
+	}
+	return nil, fmt.Errorf("board not found: %s", name)
+}
+
+func (c *Client) FindListByName(boardID, name string) (*List, error) {
+	lists, err := c.GetBoardLists(boardID)
+	if err != nil {
+		return nil, err
+	}
+	for _, l := range lists {
+		if l.Name == name {
+			return &l, nil
+		}
+	}
+	return nil, fmt.Errorf("list not found: %s", name)
+}
