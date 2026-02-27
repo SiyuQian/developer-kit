@@ -2,6 +2,7 @@ package trello
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -30,5 +31,85 @@ func TestGetBoards(t *testing.T) {
 	}
 	if len(result) != 1 || result[0].Name != "Sprint Board" {
 		t.Errorf("unexpected boards: %+v", result)
+	}
+}
+
+func TestGetBoardLists(t *testing.T) {
+	lists := []List{{ID: "list1", Name: "Ready"}, {ID: "list2", Name: "Done"}}
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path != "/1/boards/board1/lists" {
+			t.Errorf("unexpected path: %s", r.URL.Path)
+		}
+		json.NewEncoder(w).Encode(lists)
+	}))
+	defer server.Close()
+
+	client := NewClient("k", "t", WithBaseURL(server.URL))
+	result, err := client.GetBoardLists("board1")
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if len(result) != 2 || result[0].Name != "Ready" {
+		t.Errorf("unexpected lists: %+v", result)
+	}
+}
+
+func TestGetListCards(t *testing.T) {
+	cards := []Card{{ID: "card1", Name: "Fix bug", Desc: "the plan"}}
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path != "/1/lists/list1/cards" {
+			t.Errorf("unexpected path: %s", r.URL.Path)
+		}
+		json.NewEncoder(w).Encode(cards)
+	}))
+	defer server.Close()
+
+	client := NewClient("k", "t", WithBaseURL(server.URL))
+	result, err := client.GetListCards("list1")
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if len(result) != 1 || result[0].Desc != "the plan" {
+		t.Errorf("unexpected cards: %+v", result)
+	}
+}
+
+func TestMoveCard(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodPut {
+			t.Errorf("expected PUT, got %s", r.Method)
+		}
+		if r.URL.Path != "/1/cards/card1" {
+			t.Errorf("unexpected path: %s", r.URL.Path)
+		}
+		w.WriteHeader(http.StatusOK)
+		fmt.Fprint(w, `{"id":"card1"}`)
+	}))
+	defer server.Close()
+
+	client := NewClient("k", "t", WithBaseURL(server.URL))
+	err := client.MoveCard("card1", "list2")
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+}
+
+func TestAddComment(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodPost {
+			t.Errorf("expected POST, got %s", r.Method)
+		}
+		if r.URL.Path != "/1/cards/card1/actions/comments" {
+			t.Errorf("unexpected path: %s", r.URL.Path)
+		}
+		w.WriteHeader(http.StatusOK)
+		fmt.Fprint(w, `{}`)
+	}))
+	defer server.Close()
+
+	client := NewClient("k", "t", WithBaseURL(server.URL))
+	err := client.AddComment("card1", "task done")
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
 	}
 }
