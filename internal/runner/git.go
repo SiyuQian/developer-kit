@@ -1,0 +1,53 @@
+package runner
+
+import (
+	"fmt"
+	"os/exec"
+	"regexp"
+	"strings"
+)
+
+type GitOps struct {
+	dir string
+}
+
+func NewGitOps(dir string) *GitOps {
+	return &GitOps{dir: dir}
+}
+
+func (g *GitOps) run(args ...string) (string, error) {
+	cmd := exec.Command("git", args...)
+	cmd.Dir = g.dir
+	out, err := cmd.CombinedOutput()
+	if err != nil {
+		return "", fmt.Errorf("git %s: %s %w", strings.Join(args, " "), string(out), err)
+	}
+	return strings.TrimSpace(string(out)), nil
+}
+
+func (g *GitOps) CreateBranch(name string) error {
+	_, err := g.run("checkout", "-b", name)
+	return err
+}
+
+func (g *GitOps) CheckoutMain() error {
+	if _, err := g.run("checkout", "main"); err != nil {
+		_, err = g.run("checkout", "master")
+		return err
+	}
+	return nil
+}
+
+func (g *GitOps) Pull() error {
+	_, err := g.run("pull", "--ff-only")
+	return err
+}
+
+var nonAlphaNum = regexp.MustCompile(`[^a-z0-9]+`)
+
+func Slugify(s string) string {
+	s = strings.ToLower(s)
+	s = nonAlphaNum.ReplaceAllString(s, "-")
+	s = strings.Trim(s, "-")
+	return s
+}
