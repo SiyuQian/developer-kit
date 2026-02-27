@@ -61,9 +61,9 @@ func (e *Executor) Run(ctx context.Context, prompt string) (*ExecuteResult, erro
 		Stderr: stderr.String(),
 	}
 
-	if ctx.Err() == context.DeadlineExceeded {
-		result.TimedOut = true
-		return result, fmt.Errorf("execution timed out")
+	if ctx.Err() != nil {
+		result.TimedOut = ctx.Err() == context.DeadlineExceeded
+		return result, fmt.Errorf("execution interrupted: %w", ctx.Err())
 	}
 
 	if err != nil {
