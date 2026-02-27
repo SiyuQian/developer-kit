@@ -62,6 +62,14 @@ func TestCheckoutMain(t *testing.T) {
 	}
 }
 
+func TestBranchName(t *testing.T) {
+	git := NewGitOps("/tmp")
+	name := git.BranchName("abc123", "Fix auth bug")
+	if name != "task/abc123-fix-auth-bug" {
+		t.Errorf("unexpected branch name: %s", name)
+	}
+}
+
 func TestSlugify(t *testing.T) {
 	tests := []struct {
 		input    string
