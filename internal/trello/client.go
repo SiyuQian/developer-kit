@@ -1,0 +1,75 @@
+package trello
+
+import (
+	"encoding/json"
+	"fmt"
+	"io"
+	"net/http"
+	"net/url"
+	"time"
+)
+
+const defaultBaseURL = "https://api.trello.com"
+
+type Client struct {
+	apiKey  string
+	token   string
+	baseURL string
+	http    *http.Client
+}
+
+type ClientOption func(*Client)
+
+func WithBaseURL(url string) ClientOption {
+	return func(c *Client) { c.baseURL = url }
+}
+
+func NewClient(apiKey, token string, opts ...ClientOption) *Client {
+	c := &Client{
+		apiKey:  apiKey,
+		token:   token,
+		baseURL: defaultBaseURL,
+		http:    &http.Client{Timeout: 30 * time.Second},
+	}
+	for _, opt := range opts {
+		opt(c)
+	}
+	return c
+}
+
+func (c *Client) get(path string, params url.Values) ([]byte, error) {
+	if params == nil {
+		params = url.Values{}
+	}
+	params.Set("key", c.apiKey)
+	params.Set("token", c.token)
+	url := fmt.Sprintf("%s%s?%s", c.baseURL, path, params.Encode())
+
+	resp, err := c.http.Get(url)
+	if err != nil {
+		return nil, fmt.Errorf("request failed: %w", err)
+	}
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, fmt.Errorf("read body failed: %w", err)
+	}
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("HTTP %d: %s", resp.StatusCode, string(body))
+	}
+	return body, nil
+}
+
+func (c *Client) GetBoards() ([]Board, error) {
+	params := url.Values{"filter": {"open"}}
+	data, err := c.get("/1/members/me/boards", params)
+	if err != nil {
+		return nil, err
+	}
+	var boards []Board
+	if err := json.Unmarshal(data, &boards); err != nil {
+		return nil, fmt.Errorf("parse boards: %w", err)
+	}
+	return boards, nil
+}
