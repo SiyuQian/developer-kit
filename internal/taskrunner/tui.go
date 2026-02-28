@@ -54,6 +54,14 @@ type cardState struct {
 
 type runnerDoneMsg struct{}
 
+type tickMsg time.Time
+
+func tickEvery() tea.Cmd {
+	return tea.Every(time.Second, func(t time.Time) tea.Msg {
+		return tickMsg(t)
+	})
+}
+
 // NewTUIModel creates a new TUI model.
 func NewTUIModel(boardName string, eventCh <-chan Event, cancel context.CancelFunc) TUIModel {
 	return TUIModel{
@@ -76,7 +84,7 @@ func waitForEvent(ch <-chan Event) tea.Cmd {
 
 // Init implements tea.Model.
 func (m TUIModel) Init() tea.Cmd {
-	return waitForEvent(m.eventCh)
+	return tea.Batch(waitForEvent(m.eventCh), tickEvery())
 }
 
 // Update implements tea.Model.
@@ -111,11 +119,21 @@ func (m TUIModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "q":
 			m.cancel()
 			return m, tea.Quit
+		case "g":
+			m.viewport.GotoTop()
+			return m, nil
+		case "G":
+			m.viewport.GotoBottom()
+			return m, nil
 		}
-		// Delegate scroll keys to viewport
+		// Delegate scroll keys (j/k/up/down) to viewport
 		var cmd tea.Cmd
 		m.viewport, cmd = m.viewport.Update(msg)
 		return m, cmd
+
+	case tickMsg:
+		// Re-render to update elapsed time display
+		return m, tickEvery()
 
 	case runnerDoneMsg:
 		m.phase = "stopped"

@@ -204,6 +204,62 @@ func TestTUIUpdateRunnerDone(t *testing.T) {
 	}
 }
 
+func TestTickUpdatesView(t *testing.T) {
+	ch := make(chan Event, 1)
+	_, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	m := NewTUIModel("Test Board", ch, cancel)
+	_, cmd := m.Update(tickMsg(time.Now()))
+	if cmd == nil {
+		t.Error("tickMsg should return a non-nil cmd to continue ticking")
+	}
+}
+
+func TestKeyUpDown(t *testing.T) {
+	ch := make(chan Event, 1)
+	_, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	m := NewTUIModel("Test Board", ch, cancel)
+	// Set up viewport with some content
+	m.ready = true
+	m.width = 100
+	m.height = 30
+
+	// Add enough content so we can scroll
+	for i := 0; i < 50; i++ {
+		m.logLines = append(m.logLines, "line")
+	}
+	m.viewport.SetContent(joinLines(m.logLines))
+
+	// Test that key j delegates to viewport (should not error)
+	updated, _ := m.Update(tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune{'j'}})
+	model := updated.(TUIModel)
+	_ = model // just verify it doesn't panic
+
+	// Test key k
+	updated, _ = m.Update(tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune{'k'}})
+	model = updated.(TUIModel)
+	_ = model
+}
+
+func TestKeyQByRune(t *testing.T) {
+	ch := make(chan Event, 1)
+	cancelCalled := false
+	cancel := func() { cancelCalled = true }
+
+	m := NewTUIModel("Test Board", ch, cancel)
+
+	_, cmd := m.Update(tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune{'q'}})
+	if !cancelCalled {
+		t.Error("cancel was not called on 'q' key")
+	}
+	if cmd == nil {
+		t.Fatal("cmd is nil, expected tea.Quit")
+	}
+}
+
 func TestTUIUpdateRunnerStarted(t *testing.T) {
 	ch := make(chan Event, 1)
 	_, cancel := context.WithCancel(context.Background())
