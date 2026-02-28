@@ -36,12 +36,6 @@ type CardStartedEvent struct {
 
 func (e CardStartedEvent) eventType() string { return "card_started" }
 
-type CardOutputEvent struct {
-	Line OutputLine
-}
-
-func (e CardOutputEvent) eventType() string { return "card_output" }
-
 type CardDoneEvent struct {
 	CardID   string
 	CardName string

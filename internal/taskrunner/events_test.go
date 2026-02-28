@@ -15,7 +15,6 @@ func TestEventTypes(t *testing.T) {
 		{"Polling", PollingEvent{}, "polling"},
 		{"NoTasks", NoTasksEvent{NextPoll: 5 * time.Second}, "no_tasks"},
 		{"CardStarted", CardStartedEvent{CardID: "c1", CardName: "Fix bug", Branch: "task/c1-fix"}, "card_started"},
-		{"CardOutput", CardOutputEvent{Line: OutputLine{Stream: "stdout", Text: "hello"}}, "card_output"},
 		{"CardDone", CardDoneEvent{CardID: "c1", CardName: "Fix bug", PRURL: "http://pr", Duration: time.Minute}, "card_done"},
 		{"CardFailed", CardFailedEvent{CardID: "c1", CardName: "Fix bug", ErrMsg: "oops", Duration: time.Minute}, "card_failed"},
 		{"ReviewStarted", ReviewStartedEvent{PRURL: "http://pr"}, "review_started"},
