@@ -82,3 +82,33 @@ type RunnerErrorEvent struct {
 }
 
 func (e RunnerErrorEvent) eventType() string { return "runner_error" }
+
+type ToolStartEvent struct {
+	ToolName string
+	Input    map[string]any
+}
+
+func (e ToolStartEvent) eventType() string { return "tool_start" }
+
+type ToolResultEvent struct {
+	ToolName   string
+	DurationMs int
+	Truncated  bool
+}
+
+func (e ToolResultEvent) eventType() string { return "tool_result" }
+
+type TextOutputEvent struct {
+	Text string
+}
+
+func (e TextOutputEvent) eventType() string { return "text_output" }
+
+type StatsUpdateEvent struct {
+	InputTokens     int
+	OutputTokens    int
+	CacheReadTokens int
+	Turns           int
+}
+
+func (e StatsUpdateEvent) eventType() string { return "stats_update" }

@@ -22,6 +22,10 @@ func TestEventTypes(t *testing.T) {
 		{"ReviewDone", ReviewDoneEvent{PRURL: "http://pr", ExitCode: 0}, "review_done"},
 		{"RunnerStopped", RunnerStoppedEvent{}, "runner_stopped"},
 		{"RunnerError", RunnerErrorEvent{Err: nil}, "runner_error"},
+		{"ToolStart", ToolStartEvent{ToolName: "Read", Input: map[string]any{"file_path": "/tmp/f.go"}}, "tool_start"},
+		{"ToolResult", ToolResultEvent{ToolName: "Read", DurationMs: 12, Truncated: false}, "tool_result"},
+		{"TextOutput", TextOutputEvent{Text: "Let me check..."}, "text_output"},
+		{"StatsUpdate", StatsUpdateEvent{InputTokens: 100, OutputTokens: 50, Turns: 3}, "stats_update"},
 	}
 
 	for _, tt := range tests {
