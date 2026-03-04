@@ -76,7 +76,10 @@ func issuesToReadyTasks(issues []ghIssue) []Task {
 
 func (s *GitHubSource) MarkInProgress(id string) error {
 	_, err := exec.Command("gh", "issue", "edit", id, "--add-label", "in-progress").Output()
-	return err
+	if err != nil {
+		return fmt.Errorf("add in-progress label to issue %s: %w", id, err)
+	}
+	return nil
 }
 
 func (s *GitHubSource) MarkDone(id, comment string) error {
@@ -84,7 +87,10 @@ func (s *GitHubSource) MarkDone(id, comment string) error {
 		return err
 	}
 	_, err := exec.Command("gh", "issue", "close", id).Output()
-	return err
+	if err != nil {
+		return fmt.Errorf("close issue %s: %w", id, err)
+	}
+	return nil
 }
 
 func (s *GitHubSource) MarkFailed(id, comment string) error {
@@ -93,14 +99,17 @@ func (s *GitHubSource) MarkFailed(id, comment string) error {
 		"--add-label", "failed",
 	).Output()
 	if err != nil {
-		return err
+		return fmt.Errorf("update labels on issue %s: %w", id, err)
 	}
 	return s.addComment(id, comment)
 }
 
 func (s *GitHubSource) addComment(id, comment string) error {
 	_, err := exec.Command("gh", "issue", "comment", id, "--body", comment).Output()
-	return err
+	if err != nil {
+		return fmt.Errorf("add comment to issue %s: %w", id, err)
+	}
+	return nil
 }
 
 func ghHasLabel(issue ghIssue, name string) bool {
