@@ -49,13 +49,17 @@ var runCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
+		projectCfg, _ := project.Load(dir)
+
 		if boardName == "" {
-			projectCfg, _ := project.Load(dir)
 			if projectCfg.Board != "" {
 				boardName = projectCfg.Board
 			}
 		}
 
+		if sourceName == "" && projectCfg.Source != "" {
+			sourceName = projectCfg.Source
+		}
 		if sourceName == "" {
 			sourceName = "trello"
 		}

@@ -11,6 +11,7 @@ const configFile = ".devpilot.json"
 // Config represents project-level configuration stored in .devpilot.json.
 type Config struct {
 	Board  string            `json:"board,omitempty"`
+	Source string            `json:"source,omitempty"` // "trello" or "github"
 	Models map[string]string `json:"models,omitempty"`
 }
 
