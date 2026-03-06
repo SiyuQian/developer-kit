@@ -182,6 +182,7 @@ func (c *Client) CreateCard(listID, name, desc string) (*Card, error) {
 	return &card, nil
 }
 
+// UpdateCard updates the description of an existing card.
 func (c *Client) UpdateCard(cardID, desc string) error {
 	params := url.Values{"desc": {desc}}
 	_, err := c.put(fmt.Sprintf("/1/cards/%s", cardID), params)

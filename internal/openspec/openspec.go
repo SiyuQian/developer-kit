@@ -55,7 +55,11 @@ func buildDescription(changeDir string) string {
 		if err != nil {
 			continue
 		}
-		parts = append(parts, string(data))
+		if content := strings.TrimSpace(string(data)); content != "" {
+			parts = append(parts, content)
+		} else {
+			continue
+		}
 	}
 
 	return strings.Join(parts, "\n\n---\n\n")
