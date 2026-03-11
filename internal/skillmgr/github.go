@@ -8,8 +8,10 @@ import (
 )
 
 const (
-	defaultOwner  = "siyuqian"
-	defaultRepo   = "devpilot"
+	defaultOwner = "siyuqian"
+	defaultRepo  = "devpilot"
+
+	// DefaultSource is the default GitHub source for devpilot skills.
 	DefaultSource = "github.com/" + defaultOwner + "/" + defaultRepo
 )
 

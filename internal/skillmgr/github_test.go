@@ -15,7 +15,7 @@ func TestFetchLatestTag(t *testing.T) {
 			return
 		}
 		w.Header().Set("Content-Type", "application/json")
-		w.Write([]byte(`{"tag_name":"v1.2.3"}`))
+		_, _ = w.Write([]byte(`{"tag_name":"v1.2.3"}`))
 	}))
 	defer srv.Close()
 
@@ -57,19 +57,19 @@ func TestFetchSkill(t *testing.T) {
 		switch r.URL.Path {
 		case "/repos/owner/repo/contents/.claude/skills/pm":
 			w.Header().Set("Content-Type", "application/json")
-			w.Write([]byte(`[
+			_, _ = w.Write([]byte(`[
 				{"type":"file","name":"SKILL.md","download_url":"` + "http://" + r.Host + `/file/SKILL.md"},
 				{"type":"dir","name":"references","download_url":""}
 			]`))
 		case "/repos/owner/repo/contents/.claude/skills/pm/references":
 			w.Header().Set("Content-Type", "application/json")
-			w.Write([]byte(`[
+			_, _ = w.Write([]byte(`[
 				{"type":"file","name":"guide.md","download_url":"` + "http://" + r.Host + `/file/guide.md"}
 			]`))
 		case "/file/SKILL.md":
-			w.Write([]byte("---\nname: pm\n---"))
+			_, _ = w.Write([]byte("---\nname: pm\n---"))
 		case "/file/guide.md":
-			w.Write([]byte("# Guide"))
+			_, _ = w.Write([]byte("# Guide"))
 		default:
 			http.NotFound(w, r)
 		}

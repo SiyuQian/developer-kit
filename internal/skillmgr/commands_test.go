@@ -12,10 +12,10 @@ func TestParseSkillArg(t *testing.T) {
 		version string
 		wantErr bool
 	}{
-		{"pm", "pm", "", false},
-		{"pm@v1.2.3", "pm", "v1.2.3", false},
-		{"google-go-style@v0.4.0", "google-go-style", "v0.4.0", false},
-		{"@v1.0.0", "", "", true},
+		{input: "pm", name: "pm", version: ""},
+		{input: "pm@v1.2.3", name: "pm", version: "v1.2.3"},
+		{input: "google-go-style@v0.4.0", name: "google-go-style", version: "v0.4.0"},
+		{input: "@v1.0.0", wantErr: true},
 	}
 
 	for _, tt := range tests {

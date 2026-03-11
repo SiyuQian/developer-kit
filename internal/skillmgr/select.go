@@ -108,7 +108,7 @@ func (m multiSelectModel) View() string {
 		if item.checked {
 			check = "[x]"
 		}
-		sb.WriteString(fmt.Sprintf("  %s%s %s\n", cursor, check, item.name))
+		fmt.Fprintf(&sb, "  %s%s %-30s %s\n", cursor, check, item.name, item.desc)
 	}
 	sb.WriteString("\n  (q to cancel)\n")
 	return sb.String()
