@@ -199,6 +199,15 @@ open + devpilot  →  open + in-progress  →  closed (Done)
                                          →  open + failed
 ```
 
+#### GitHub Issues execution order
+
+GitHub Issues have no native ordering, so DevPilot uses a two-key sort:
+
+1. **Priority first** — `P0-critical` > `P1-high` > `P2-normal` (unlabelled defaults to P2)
+2. **Creation time second** — within the same priority, older issues run first (FIFO)
+
+This is fully automatic. The runner requests `sort:created-asc` from the GitHub API and uses creation timestamp as a stable tiebreaker, so the queue behaves predictably without any extra configuration.
+
 For each task:
 1. Polls the source and sorts by priority (P0 > P1 > P2; default P2)
 2. Validates the task has a description (the plan)
